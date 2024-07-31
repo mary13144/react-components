@@ -1,4 +1,4 @@
-import { CreateIcon } from "../createIcon";
+import { CreateIcon } from '../createIcon';
 
 export const IconEmail = CreateIcon({
 	content: (

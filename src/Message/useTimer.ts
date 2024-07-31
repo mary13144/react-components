@@ -1,4 +1,4 @@
-import {useEffect, useRef} from "react";
+import { useEffect, useRef } from 'react';
 
 export interface useTimerProps {
 	id: number;
@@ -7,40 +7,39 @@ export interface useTimerProps {
 }
 
 export default function useTimer(props: useTimerProps) {
+	const { id, duration = 2000, remove } = props;
 
-	const {id, duration = 2000, remove} = props;
 	const timer = useRef<number | null>(null);
 
 	const startTimer = () => {
 		timer.current = setTimeout(() => {
 			remove(id);
-			removeTimer()
-		}, duration)
-	}
+			removeTimer();
+		}, duration);
+	};
 
 	const removeTimer = () => {
 		if (timer.current) {
 			clearTimeout(timer.current);
-			timer.current = null
+			timer.current = null;
 		}
-	}
+	};
 
 	useEffect(() => {
-		startTimer()
-		return () => removeTimer()
-	}, [])
+		startTimer();
+		return () => removeTimer();
+	}, []);
 
 	const onMouseEnter = () => {
-		removeTimer()
-	}
+		removeTimer();
+	};
 
 	const onMouseLeave = () => {
-		startTimer()
-	}
+		startTimer();
+	};
 
 	return {
 		onMouseEnter,
-		onMouseLeave
-	}
-
+		onMouseLeave,
+	};
 }

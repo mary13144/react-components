@@ -1,12 +1,11 @@
-import {ReactNode, useEffect, useState} from "react";
-import {Button, Popover} from "antd";
-import Mask from "./Mask.tsx";
-import {createPortal} from "react-dom";
-import styled from "styled-components";
-
+import { ReactNode, useEffect, useState } from 'react';
+import { Button, Popover } from 'antd';
+import Mask from './Mask.tsx';
+import { createPortal } from 'react-dom';
+import styled from 'styled-components';
 
 type TooltipPlacement =
-	'top'
+	| 'top'
 	| 'left'
 	| 'right'
 	| 'bottom'
@@ -39,57 +38,48 @@ const OnboardingOperation = styled.div`
 	display: flex;
 	justify-content: center;
 	margin-top: 12px;
-`
+`;
 
-const ButtonStyle = styled(Button)`
+const StyleButton = styled(Button)`
 	min-width: 80px;
-`
-
+`;
 
 export default function OnBoarding(props: OnBoardingProps) {
-	const {
-		step = 0,
-		steps,
-		getContainer,
-		onStepsEnd,
-	} = props
+	const { step = 0, steps, getContainer, onStepsEnd } = props;
 
-	const [done, setDone] = useState<boolean>(false)
-	// const [isMaskMoving, setIsMaskMoving] = useState<boolean>(false)
-	const [currentStep, setCurrentStep] = useState<number>(0)
-	const currentSelectElement = steps[currentStep]?.selector()
+	const [done, setDone] = useState<boolean>(false);
+	const [currentStep, setCurrentStep] = useState<number>(0);
+	const currentSelectElement = steps[currentStep]?.selector();
 
-	const currentContainerElement = getContainer?.() || document.documentElement;
+	const currentContainerElement =
+		getContainer?.() || document.documentElement;
 
 	const getCurrentStep = () => {
-		return steps[currentStep]
-	}
+		return steps[currentStep];
+	};
 
-	const back = async () => {
+	const back = () => {
 		if (currentStep === 0) {
 			return;
 		}
 
-		const {beforeBack} = getCurrentStep();
-		await beforeBack?.(currentStep);
+		const { beforeBack } = getCurrentStep();
+		beforeBack?.(currentStep);
 		setCurrentStep(currentStep - 1);
-	}
+	};
 
-	const forward = async () => {
+	const forward = () => {
 		if (currentStep === steps.length - 1) {
-			await onStepsEnd?.();
-			setDone(true)
+			onStepsEnd?.();
+			setDone(true);
 			return;
 		}
 
-		const {beforeForward} = getCurrentStep();
-		await beforeForward?.(currentStep);
+		const { beforeForward } = getCurrentStep();
+		beforeForward?.(currentStep);
 		setCurrentStep(currentStep + 1);
-	}
+	};
 
-	useEffect(() => {
-		setCurrentStep(step!)
-	}, [step]);
 
 	const renderPopover = (wrapper: ReactNode) => {
 		const config = getCurrentStep();
@@ -97,34 +87,26 @@ export default function OnBoarding(props: OnBoardingProps) {
 			return wrapper;
 		}
 
-		const {renderContent} = config
+		const { renderContent } = config;
 
 		const content = renderContent ? renderContent(currentStep) : null;
 
-
 		const operation = (
 			<OnboardingOperation>
-				{
-					currentStep !== 0 &&
-					<ButtonStyle
-						style={{marginRight: '12px'}}
+				{currentStep !== 0 && (
+					<StyleButton
+						style={{ marginRight: '12px' }}
 						onClick={() => back()}
 					>
 						{'上一步'}
-					</ButtonStyle>
-				}
-				<ButtonStyle
-					type={'primary'}
-					className={'forward'}
-					onClick={() => forward()}
-				>
+					</StyleButton>
+				)}
+				<StyleButton type={'primary'} onClick={() => forward()}>
 					{currentStep === steps.length - 1 ? '我知道了' : '下一步'}
-				</ButtonStyle>
+				</StyleButton>
 			</OnboardingOperation>
-		)
-
+		);
 		return (
-			// isMaskMoving ? wrapper :
 			<Popover
 				content={
 					<div>
@@ -133,34 +115,35 @@ export default function OnBoarding(props: OnBoardingProps) {
 					</div>
 				}
 				open={true}
-				placement={getCurrentStep()?.placement}>
+				placement={config.placement}
+			>
 				{wrapper}
 			</Popover>
-		)
+		);
+	};
 
-	}
-
-	const [, setRenderTick] = useState<number>(0)
 
 	useEffect(() => {
-		setRenderTick(1)
+		setCurrentStep(step)
+	}, [step]);
+	// 这里是为了让元素整体渲染完后才能进行引导
+	const [, setRenderTick] = useState<number>(0);
+
+	useEffect(() => {
+		setRenderTick(1);
 	}, []);
 
 	if (!currentSelectElement || done) {
-		return null
+		return null;
 	}
 
-	const mask = <Mask
-		// onAnimationStart={() => {
-		// 	setIsMaskMoving(true)
-		// }}
-		// onAnimationEnd={() => {
-		// 	setIsMaskMoving(false)
-		// }}
-		container={currentContainerElement}
-		element={currentSelectElement}
-		renderMaskContent={(wrapper) => renderPopover(wrapper)}/>
+	const mask = (
+		<Mask
+			container={currentContainerElement}
+			element={currentSelectElement}
+			renderMaskContent={(wrapper) => renderPopover(wrapper)}
+		/>
+	);
 
-	return createPortal(mask, currentContainerElement)
+	return createPortal(mask, currentContainerElement);
 }
-

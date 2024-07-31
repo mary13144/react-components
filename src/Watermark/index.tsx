@@ -5,8 +5,8 @@ import {
 	useCallback,
 	useEffect,
 	FC,
-} from "react";
-import useWatermark from "./useWatermark";
+} from 'react';
+import useWatermark from './useWatermark';
 
 export interface WatermarkProps extends PropsWithChildren {
 	style?: CSSProperties;
@@ -14,8 +14,8 @@ export interface WatermarkProps extends PropsWithChildren {
 	zIndex?: string | number;
 	width?: number;
 	height?: number;
-	rotate?: number; //水印旋转角度
-	image?: string;
+	rotate?: number; // 水印旋转角度
+	image?: string; // 图片地址
 	content?: string | string[];
 	fontStyle?: {
 		color?: string;
@@ -46,9 +46,10 @@ const Watermark: FC<WatermarkProps> = (props) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const getContainer = useCallback(() => {
-		return props.getContainer ? props.getContainer() : containerRef.current!;
-    }, [containerRef.current, props.getContainer]);
-    
+		return props.getContainer
+			? props.getContainer()
+			: containerRef.current!;
+	}, [props.getContainer, containerRef.current]);
 
 	const Watermark = useWatermark({
 		zIndex,

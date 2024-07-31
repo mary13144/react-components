@@ -1,11 +1,14 @@
-import { CSSProperties, ReactNode } from "react";
-import HeaderCalendar from "./HeaderCalendar";
-import MonthCalendar from "./MonthCalendar";
-import "./index.scss";
-import dayjs, { Dayjs } from "dayjs";
-import cs from "classnames";
-import LocalContext from "./localeContext";
-import { useImmer } from "use-immer";
+import { CSSProperties, ReactNode, useState } from 'react';
+import HeaderCalendar from './HeaderCalendar';
+import MonthCalendar from './MonthCalendar';
+import dayjs, { Dayjs } from 'dayjs';
+import LocalContext from './localeContext';
+import styled from 'styled-components';
+import classNames from 'classnames';
+
+const CalendarWrapper = styled.div`
+	width: 100%;
+`;
 export interface CalendarProps {
 	value: Dayjs;
 	style?: CSSProperties;
@@ -20,15 +23,9 @@ export interface CalendarProps {
 }
 
 function Calendar(props: CalendarProps) {
-	const {
-		value,
-		style,
-		className,
-		locale,
-		onChange,
-	} = props;
-	const [curDate, setCurDate] = useImmer<Dayjs>(value);
-	const [curMonth, setCurMonth] = useImmer<Dayjs>(value);
+	const { value, style, className, locale, onChange } = props;
+	const [curDate, setCurDate] = useState<Dayjs>(value);
+	const [curMonth, setCurMonth] = useState<Dayjs>(value);
 
 	const changeDate = (date: Dayjs) => {
 		setCurDate(date);
@@ -37,30 +34,31 @@ function Calendar(props: CalendarProps) {
 	};
 
 	const handleSelect = (date: Dayjs) => {
-		changeDate(date)
+		changeDate(date);
 	};
 
 	const handlePrev = () => {
-		setCurMonth(curMonth.subtract(1, "month"));
+		setCurMonth(curMonth.subtract(1, 'month'));
 	};
 
 	const handleNext = () => {
-		setCurMonth(curMonth.add(1, "month"));
+		setCurMonth(curMonth.add(1, 'month'));
 	};
 
 	const handleToday = () => {
 		const date = dayjs();
-		changeDate(date)
+		changeDate(date);
 	};
 
-	const classNames = cs(className, "calendar");
+	const cn = classNames(className);
+
 	return (
 		<LocalContext.Provider
 			value={{
 				locale: locale || navigator.language,
 			}}
 		>
-			<div className={classNames} style={style}>
+			<CalendarWrapper className={cn} style={style}>
 				<HeaderCalendar
 					curMonth={curMonth}
 					handlePrev={handlePrev}
@@ -73,7 +71,7 @@ function Calendar(props: CalendarProps) {
 					curMonth={curMonth}
 					handleSelect={handleSelect}
 				></MonthCalendar>
-			</div>
+			</CalendarWrapper>
 		</LocalContext.Provider>
 	);
 }

@@ -1,10 +1,58 @@
-import { Dayjs, extend } from "dayjs";
-import "./index.scss";
-import { CalendarProps } from ".";
-import { useContext } from "react";
-import LocalContext from "./localeContext";
-import allLocales from "./locale";
-import cs from "classnames";
+import { Dayjs } from 'dayjs';
+import { CalendarProps } from '.';
+import { useContext } from 'react';
+import LocalContext from './localeContext';
+import allLocales from './locale';
+import styled from 'styled-components';
+
+const WeekList = styled.div`
+	display: flex;
+	padding: 0;
+	width: 100%;
+	box-sizing: border-box;
+	border-bottom: 1px solid #ccc;
+`;
+
+const WeekListItem = styled.div`
+	padding: 20px 16px;
+	text-align: left;
+	color: #7d7d7f;
+	flex: 1;
+`;
+
+const MonthBodyRow = styled.div`
+	height: 100px;
+	display: flex;
+`;
+
+const MonthBodyCell = styled.div<{ $current?: boolean }>`
+	flex: 1;
+	border: 1px solid #eee;
+	color: #ccc;
+	overflow: hidden;
+	user-select: none;
+
+	${(props) => props.$current && `color: #000`}
+`;
+
+const CellDate = styled.div`
+	padding: 10px;
+`;
+
+const CellDateValue = styled.div<{ $selected: boolean }>`
+	${(props) =>
+		props.$selected &&
+		`
+      background: blue;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      text-align: center;
+      color: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+    `}
+`;
 
 interface MonthCalendarProps extends CalendarProps {
 	handleSelect?: (date: Dayjs) => void;
@@ -20,31 +68,32 @@ function MonthCalendar(props: MonthCalendarProps) {
 	const localeContext = useContext(LocalContext);
 	const calendarLocale = allLocales[localeContext.locale];
 	const weekList = [
-		"sunday",
-		"monday",
-		"tuesday",
-		"wednesday",
-		"thursday",
-		"friday",
-		"saturday",
+		'sunday',
+		'monday',
+		'tuesday',
+		'wednesday',
+		'thursday',
+		'friday',
+		'saturday',
 	];
 
-	const { value, dateRander, dateInnerContent, handleSelect, curMonth } = props;
+	const { value, dateRander, dateInnerContent, handleSelect, curMonth } =
+		props;
+
 	function getAllDays(date: Dayjs) {
-		const dayInMonth = date.daysInMonth();
-		const startOfDay = date.startOf("month");
+		const startOfDay = date.startOf('month');
 		const day = startOfDay.day();
 
 		const dayInfo: Array<dayDate> = new Array(6 * 7);
 		for (let i = 0; i < day; i++) {
 			dayInfo[i] = {
-				date: startOfDay.subtract(day - i, "day"),
+				date: startOfDay.subtract(day - i, 'day'),
 				currentMonth: false,
 			};
 		}
 
 		for (let i = day; i < dayInfo.length; i++) {
-			const calcDate = startOfDay.add(i - day, "day");
+			const calcDate = startOfDay.add(i - day, 'day');
 			dayInfo[i] = {
 				date: calcDate,
 				currentMonth: calcDate.month() == date.month(),
@@ -54,67 +103,59 @@ function MonthCalendar(props: MonthCalendarProps) {
 		return dayInfo;
 	}
 
-	function renderDays(
-		days: Array<dayDate>,
-	) {
+	function renderDays(days: Array<dayDate>) {
 		const rows = [];
 		for (let i = 0; i < 6; i++) {
 			const row = [];
 			for (let j = 0; j < 7; j++) {
 				const item = days[i * 7 + j];
 				row[j] = (
-					<div
-						className={cs(
-							"calendar-month-body-cell",
-							item.currentMonth ? "calendar-month-body-cell-current" : ""
-						)}
+					<MonthBodyCell
+						$current={item.currentMonth}
 						onClick={() => handleSelect?.(item.date)}
 					>
 						{dateRander ? (
 							dateRander(item.date)
 						) : (
-							<div className="calendar-month-body-cell-date">
-								<div
-									className={cs(
-										"calendar-month-body-cell-date-value",
-										value.format("YYYY-MM-DD") == item.date.format("YYYY-MM-DD")
-											? "calendar-month-body-cell-date-select"
-											: ""
-									)}
+							<CellDate>
+								<CellDateValue
+									$selected={
+										value.format('YYYY-MM-DD') ==
+										item.date.format('YYYY-MM-DD')
+									}
 								>
 									{item.date.date()}
-								</div>
+								</CellDateValue>
 								<div className="calendar-month-body-cell-date-content">
 									{dateInnerContent?.(item.date)}
 								</div>
-							</div>
+							</CellDate>
 						)}
-					</div>
+					</MonthBodyCell>
 				);
 			}
-
 			rows.push(row);
 		}
 		return rows.map((row) => {
-			return <div className="calendar-month-body-row">{row}</div>;
+			return <MonthBodyRow>{row}</MonthBodyRow>;
 		});
 	}
-	const allDays = getAllDays(curMonth);
+
 	return (
-		<div className="calendar-month">
-			<div className="calendar-month-week-list">
+		<>
+			<WeekList>
 				{weekList.map((item) => {
 					return (
-						<div className="calendar-month-week-list-item">
+						<WeekListItem key={item}>
 							{calendarLocale.week[item]}
-						</div>
+						</WeekListItem>
 					);
 				})}
-			</div>
+			</WeekList>
 			<div className="calendar-month-body">
-				{renderDays(allDays)}
+				{renderDays(getAllDays(curMonth))}
 			</div>
-		</div>
+		</>
 	);
 }
 

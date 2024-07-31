@@ -1,6 +1,11 @@
-import {CheckOutlined, CloseOutlined, DeleteOutlined, LoadingOutlined} from '@ant-design/icons'
-import {Progress} from "antd";
-import styled from "styled-components";
+import {
+	CheckOutlined,
+	CloseOutlined,
+	DeleteOutlined,
+	LoadingOutlined,
+} from '@ant-design/icons';
+import { Progress } from 'antd';
+import styled from 'styled-components';
 
 export interface UploadFile {
 	uid: string;
@@ -10,7 +15,7 @@ export interface UploadFile {
 	percent?: number;
 	raw?: File;
 	response?: any;
-	error?: any
+	error?: any;
 }
 
 interface UploadListProps {
@@ -22,9 +27,11 @@ const Ulstyle = styled.ul`
 	margin: 0;
 	padding: 0;
 	list-style-type: none;
-`
+`;
 
-const Listyle = styled.li<{ $status: UploadFile['status'] }>`
+const Listyle = styled.li<{
+	$status: UploadFile['status'];
+}>`
 	margin-top: 5px;
 	font-size: 14px;
 	line-height: 2em;
@@ -32,8 +39,8 @@ const Listyle = styled.li<{ $status: UploadFile['status'] }>`
 	box-sizing: border-box;
 	min-width: 200px;
 	position: relative;
-	color: ${props => props.$status === 'error' ? 'red' : 'blue'};
-`
+	color: ${(props) => (props.$status === 'error' ? 'red' : 'blue')};
+`;
 
 const SpanStyle = styled.span`
 	display: none;
@@ -45,29 +52,30 @@ const SpanStyle = styled.span`
 	${Listyle}:hover & {
 		display: block;
 	}
-`
-
+`;
 
 export const UploadList = (props: UploadListProps) => {
-	const {fileList, onRemove} = props;
+	const { fileList, onRemove } = props;
 
 	return (
 		<Ulstyle>
 			{fileList.map((item) => (
 				<Listyle $status={item.status} key={item.uid}>
 					<span>
-					{(item.status === 'uploading' || item.status === 'ready') && <LoadingOutlined/>}
-						{item.status === 'success' && <CheckOutlined/>}
-						{item.status === 'error' && <CloseOutlined/>}
+						{(item.status === 'uploading' ||
+							item.status === 'ready') && <LoadingOutlined />}
+						{item.status === 'success' && <CheckOutlined />}
+						{item.status === 'error' && <CloseOutlined />}
 						{item.name}
 					</span>
 					<SpanStyle>
-						<DeleteOutlined onClick={() => onRemove(item)}/>
+						<DeleteOutlined onClick={() => onRemove(item)} />
 					</SpanStyle>
-					{item.status === 'uploading' && <Progress percent={item.percent || 0}/>}
+					{item.status === 'uploading' && (
+						<Progress percent={item.percent || 0} />
+					)}
 				</Listyle>
 			))}
 		</Ulstyle>
 	);
 };
-
